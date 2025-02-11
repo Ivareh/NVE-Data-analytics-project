@@ -1,1 +1,0 @@
-# NVE Data analytics project

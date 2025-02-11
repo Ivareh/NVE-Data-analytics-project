@@ -1,0 +1,67 @@
+services:
+  source_magasin_db:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    networks:
+      - nve_elt_network
+    environment:
+      POSTGRES_DB: source_magasin_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changethis
+    volumes:
+      - ./source/nve_source_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  destination_nve_db:
+    image: postgres:latest
+    ports:
+      - "5434:5432"
+    networks:
+      - nve_elt_network
+    depends_on:
+      - source_magasin_db
+    environment:
+      POSTGRES_DB: nve_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changethis
+    #volumes:
+    # - destination_nve_data:/var/lib/postgresql/data
+
+  # elt_script:
+  #   build:
+  #     context: ./elt_script # Directory containing the Dockerfile and elt_script.py
+  #     dockerfile: Dockerfile # Name of the Dockerfile, if it's something other than "Dockerfile", specify here
+  #   command: [ "python", "elt_script.py" ]
+  #   networks:
+  #     - nve_elt_network
+  #   depends_on:
+  #     - destination_postgres
+
+  # dbt:
+  #   image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
+  #   command:
+  #     [
+  #       "run",
+  #       "--profiles-dir",
+  #       "/root",
+  #       "--project-dir",
+  #       "/dbt",
+  #       "--full-refresh"
+  #     ]
+  #   networks:
+  #     - nve_elt_network
+  #   volumes:
+  #     - ./src/transform:/dbt
+  #     - ~/.dbt:/root
+  #   # depends_on:
+  #   #   - elt_script
+  #   environment:
+  #     DBT_PROFILE: default
+  #     DBT_TARGET: dev
+
+networks:
+  nve_elt_network:
+    driver: bridge
+
+volumes:
+  destination_nve_data:
