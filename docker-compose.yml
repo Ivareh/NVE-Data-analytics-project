@@ -1,16 +1,25 @@
 services:
-  source_magasin_db:
+  source_nve_db:
     image: postgres:latest
     ports:
       - "5433:5432"
     networks:
       - nve_elt_network
     environment:
-      POSTGRES_DB: source_magasin_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: changethis
+      POSTGRES_DB: ${POSTGRES_SRC_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./source/nve_source_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/source/db/nve_source_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $POSTGRES_USER -d $POSTGRES_SRC_DB -h $POSTGRES_SRC_SERVER -p 5432",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   destination_nve_db:
     image: postgres:latest
@@ -19,13 +28,50 @@ services:
     networks:
       - nve_elt_network
     depends_on:
-      - source_magasin_db
+      - source_nve_db
     environment:
-      POSTGRES_DB: nve_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: changethis
-    #volumes:
-    # - destination_nve_data:/var/lib/postgresql/data
+      POSTGRES_DB: ${POSTGRES_DESTINATION_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+     - destination_nve_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $POSTGRES_USER -d $POSTGRES_DESTINATION_DB -h $POSTGRES_DESTINATION_SERVER -p 5432",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - nve_elt_network
+    depends_on:
+      - source_nve_db
+      - destination_nve_db
+
+  extract_load_script:
+    restart: "no"
+    build:
+      context: ./src/source
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-true}
+    ports:
+      - "8889:8889"
+    depends_on:
+      source_nve_db:
+        condition: service_healthy
+    networks:
+      - nve_elt_network
+    env_file:
+      - .env
+    command: "/load/prestart.sh"
 
   # elt_script:
   #   build:
