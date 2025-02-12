@@ -1,0 +1,43 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  simple:
+    format: "%(name)s: [%(levelname)s|%(module)s|%(funcName)s|L%(lineno)d]: %(asctime)s: %(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S%z"
+  json:
+    (): load.logs.config.JSONFormatter
+    fmt_keys:
+      logger: name
+      level: levelname
+      module: module
+      func: funcName
+      lineno: lineno
+      timestamp: timestamp
+      message: message
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    level: DEBUG
+    filters: []
+    formatter: simple
+    stream: "ext://sys.stdout"
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    filters: []
+    filename: "load/logs/source.log"
+    maxBytes: 504857600 # 500 MB
+    backupCount: 2
+    formatter: simple
+loggers:
+  source:
+    level: DEBUG
+    handlers:
+      - stdout
+      - file
+    propagate: no
+root:
+  level: INFO
+  handlers:
+    - stdout
+    - file
