@@ -1,0 +1,15 @@
+version: 2
+
+snapshots:
+  - name: area_snapshot
+    relation: source('nve_source_db', 'area')
+    config:
+      unique_key: id
+      strategy: check
+      check_cols:
+        - navn
+        - navn_langt
+        - beskrivelse
+        - current_area
+        - omr_type
+
