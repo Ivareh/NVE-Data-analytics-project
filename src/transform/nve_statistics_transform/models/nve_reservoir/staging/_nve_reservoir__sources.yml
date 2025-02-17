@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: nve_db
+    description: "Data from the reservoir statistics API in PostgreSQL database."
+    database: nve_db
+    schema: public
+    tables:
+      - name: dates
+        description: "Dates with boundary between oldest and newest datapoints in reservoir statistics API."
+      - name: area
+        description: "Areas where the reservoirs are at."
+      - name: magasinstatistikk_model
+        description: "Reservoir statistics with weekly measurements and metrics."
+      - name: magasinstatistikk_min_max_median_model
+        description: "Reservoir statistics of the calculated metrics min max median in the last 20 years"
+

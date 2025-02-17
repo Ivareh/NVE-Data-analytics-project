@@ -1,45 +1,21 @@
 services:
-  source_nve_db:
+  nve_db:
     image: postgres:latest
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - nve_elt_network
     environment:
-      POSTGRES_DB: ${POSTGRES_SRC_DB}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./src/source/db/nve_source_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/source/db/nve_db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U $POSTGRES_USER -d $POSTGRES_SRC_DB -h $POSTGRES_SRC_SERVER -p 5432",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  destination_nve_db:
-    image: postgres:latest
-    ports:
-      - "5434:5432"
-    networks:
-      - nve_elt_network
-    depends_on:
-      - source_nve_db
-    environment:
-      POSTGRES_DB: ${POSTGRES_DESTINATION_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-     - destination_nve_data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $POSTGRES_USER -d $POSTGRES_DESTINATION_DB -h $POSTGRES_DESTINATION_SERVER -p 5432",
+          "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_SERVER -p 5432",
         ]
       interval: 5s
       timeout: 5s
@@ -53,8 +29,9 @@ services:
     networks:
       - nve_elt_network
     depends_on:
-      - source_nve_db
-      - destination_nve_db
+      - nve_db
+    environment:
+      - ADMINER_DESIGN=pepa-linha-dark
 
   extract_load_script:
     restart: "no"
@@ -65,23 +42,13 @@ services:
     ports:
       - "8889:8889"
     depends_on:
-      source_nve_db:
+      nve_db:
         condition: service_healthy
     networks:
       - nve_elt_network
     env_file:
       - .env
     command: "/load/prestart.sh"
-
-  # elt_script:
-  #   build:
-  #     context: ./elt_script # Directory containing the Dockerfile and elt_script.py
-  #     dockerfile: Dockerfile # Name of the Dockerfile, if it's something other than "Dockerfile", specify here
-  #   command: [ "python", "elt_script.py" ]
-  #   networks:
-  #     - nve_elt_network
-  #   depends_on:
-  #     - destination_postgres
 
   # dbt:
   #   image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
@@ -109,5 +76,3 @@ networks:
   nve_elt_network:
     driver: bridge
 
-volumes:
-  destination_nve_data:
