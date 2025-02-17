@@ -19,26 +19,27 @@ The data goes through the processes:
   - [Docker](https://www.docker.com/)
   - Power BI / Google Looker studio
 
+## Data from 17.02.2025
 
-![image](https://github.com/user-attachments/assets/6ad6cb98-95c2-487e-907e-f4f77bfa1892)
-
-
-![image](https://github.com/user-attachments/assets/4ca263ad-ed3e-49f4-831a-16a84cfcb942)
+![NVE_data_analytics_report_-_Ivar_Haugland_page-0021](https://github.com/user-attachments/assets/64acd779-209b-468c-be20-8bfb3e3e26f7)
 
 
-
-![image](https://github.com/user-attachments/assets/e76b4354-3e9d-4e95-9b58-2457ede49703)
+![NVE_data_analytics_report_-_Ivar_Haugland_page-0022](https://github.com/user-attachments/assets/5751c5d8-bf77-4255-95a8-bd7d9af1ac0e)
 
 
 
-![image](https://github.com/user-attachments/assets/343b61b0-b326-4ab7-b7a5-fd9501291dc1)
+![NVE_data_analytics_report_-_Ivar_Haugland_page-0023](https://github.com/user-attachments/assets/deafd311-a732-4055-a506-2284b7311a50)
 
+
+
+![NVE_data_analytics_report_-_Ivar_Haugland_page-0024](https://github.com/user-attachments/assets/fd802d0f-0a89-4cd1-b9d2-90b31fc29f75)
 
 
 ## Example of a DBT model created
 
 
-![image](https://github.com/user-attachments/assets/3195559a-7165-45c9-8fda-73d9398856fe)
+![NVE_data_analytics_report_-_Ivar_Haugland_page-0019](https://github.com/user-attachments/assets/81942d45-18d1-45c3-9438-808fc7ffc30c)
+
 
 
   
