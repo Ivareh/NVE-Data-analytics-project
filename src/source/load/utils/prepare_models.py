@@ -18,9 +18,9 @@ def prepare_areas(area_df: pd.DataFrame) -> pd.DataFrame:
     return result_df
 
 
-def prepare_dato_dimensjon(years: Iterable[int]) -> pd.DataFrame:
+def prepare_dates(years: Iterable[int]) -> pd.DataFrame:
     """
-    Create a DataFrame modeled "dato_dimensjon" with all date data for given years,
+    Create a DataFrame modeled "dates" with all date data for given years,
     ready for db insertion
     """
 
@@ -31,7 +31,7 @@ def prepare_dato_dimensjon(years: Iterable[int]) -> pd.DataFrame:
         {
             "iso_dato": date_range,
             "iso_aar": date_range.year,
-            "iso_uke": date_range.isocalendar().week,
+            "maaling_uke": date_range.isocalendar().week + 3,  # Start week at sundays
             "iso_maaned": date_range.month,
             "iso_dag": date_range.day,
         },
@@ -44,7 +44,6 @@ def prepare_magasin(
     magasin_df: pd.DataFrame, dato_db_df: pd.DataFrame, area_db_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Prepares magasin statistics for inserting into db"""
-
     magasin_df = (
         magasin_df.merge(
             right=dato_db_df[["id", "iso_dato"]],
@@ -73,10 +72,11 @@ def prepare_magasin_min_max(
     magasin_min_max_df: pd.DataFrame, area_db_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Prepares magasin statistics with min max median for inserting into db"""
-
+    magasin_min_max_df["iso_uke"] += 3
     magasin_min_max_df = (
         magasin_min_max_df.rename(
             columns={
+                "iso_uke": "maaling_uke",
                 "omrType": "omr_type",
                 "minFyllingsgrad": "min_fyllingsgrad",
                 "minFyllingTWH": "min_fylling_twh",

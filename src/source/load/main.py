@@ -5,7 +5,7 @@ from load.load_config import load_settings
 from load.logs.logger import main_logger, setup_logging
 from load.utils.prepare_models import (
     prepare_areas,
-    prepare_dato_dimensjon,
+    prepare_dates,
     prepare_magasin,
     prepare_magasin_min_max,
 )
@@ -21,6 +21,7 @@ def main():
     )
 
     area_df = load_raw_api_data(api_url=BIAPI_STR_PREFIX + "/HentOmråder")
+
     area_df = prepare_areas(area_df)
     main_logger.debug(
         "Loaded and prepared area df from '$BIAPI_STR_PREFIX/HentOffentligData'"
@@ -47,8 +48,8 @@ def main():
 
     iso_aar = magasin_df["iso_aar"].unique()
 
-    dato_df = prepare_dato_dimensjon(iso_aar)
-    main_logger.debug("Loaded and prepared 'dato_dimensjon'")
+    dato_df = prepare_dates(iso_aar)
+    main_logger.debug("Loaded and prepared 'dates'")
 
     magasin_df = magasin_df.drop(columns=["iso_aar", "iso_uke"])
     magasin_df = magasin_df.rename(
@@ -62,10 +63,10 @@ def main():
         }
     )
     main_logger.debug(
-        "Dropped columns ['iso_aar', 'iso_uke'] and renamed in magasin_df"
+        "Dropped columns ['iso_aar', 'maaling_uke'] and renamed in magasin_df"
     )
 
-    dato_db_df = insert_into_db(engine, table_name="dato_dimensjon", df=dato_df)
+    dato_db_df = insert_into_db(engine, table_name="dates", df=dato_df)
     main_logger.debug("Loaded dato data into db")
 
     area_db_df = insert_into_db(engine, table_name="area", df=area_df)
@@ -84,7 +85,9 @@ def main():
     magasin_min_max_df = prepare_magasin_min_max(magasin_min_max_df, area_db_df)
 
     insert_into_db(
-        engine, table_name="magasinstatistikk_min_max_model", df=magasin_min_max_df
+        engine,
+        table_name="magasinstatistikk_min_max_median_model",
+        df=magasin_min_max_df,
     )
     main_logger.debug("Prepared and loaded magasin min max median data into db")
 

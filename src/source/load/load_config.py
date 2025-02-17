@@ -8,11 +8,11 @@ class Settings(BaseSettings):
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
 
-    POSTGRES_SRC_SERVER: str
+    POSTGRES_SERVER: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
-    POSTGRES_SRC_PORT: int = 5432
-    POSTGRES_SRC_DB: str = ""
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str = ""
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -21,9 +21,9 @@ class Settings(BaseSettings):
             scheme="postgresql",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_SRC_SERVER,
-            port=self.POSTGRES_SRC_PORT,
-            path=self.POSTGRES_SRC_DB,
+            host=self.POSTGRES_SERVER,
+            port=self.POSTGRES_PORT,
+            path=self.POSTGRES_DB,
         )
         return url
 
